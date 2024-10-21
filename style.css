@@ -1,0 +1,18 @@
+button {
+	width: 10ric;
+	height: 2.5ric;
+	margin: 0.5ric;
+}
+div[data-playing="true"] button {
+	background-color: red;
+}
+
+main {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+input {
+	display: block;
+	margin: auto;
+}

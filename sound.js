@@ -11,6 +11,7 @@ class Mp3Object {
 	#element = null;
 	/** @type {GainNode} */
 	#gain = null;
+	#isLoop = false;
 
 	constructor(key, filePath, insertElementQuery, text) {
 		this.key = key;
@@ -24,6 +25,7 @@ class Mp3Object {
 		this.#element.innerHTML = `
 		<div><button>${text}</button></div>
 		<div><input type="range" min="0" max="1" step="0.01" value="1"></div>
+		<div><input type="checkbox" checked></div>
 		`;
 		this.#element.querySelector("button").disabled = true;
 		this.#element.querySelector("button").addEventListener('click', async e => {
@@ -34,10 +36,13 @@ class Mp3Object {
 				this.play();
 			}
 		});
-		this.#element.querySelector("input").addEventListener('input', e => {
+		this.#element.querySelector('input[type="range"]').addEventListener('input', e => {
 			console.log(e.target.value);
 			if (this.#gain != null)
 				this.#gain.gain.value = parseFloat(e.target.value, 10);
+		});
+		this.#element.querySelector('input[type="checkbox"]').addEventListener('input', e => {
+			this.#isLoop = Boolean(e.target.value);
 		});
 	}
 
@@ -56,8 +61,14 @@ class Mp3Object {
 		gain.connect(context.destination);
 		this.#gain = gain;
 		source.addEventListener('ended', async () => {
-			this.#source = await this.#getAudioBufferSource();
-			this.#element.dataset.playing = "false";
+			const a = (this.#element.querySelector('input[type="checkbox"]').checked);
+			if (a) {
+				this.#source = await this.#getAudioBufferSource();
+				this.play();
+			} else {
+				this.#source = await this.#getAudioBufferSource();
+				this.#element.dataset.playing = "false";
+			}
 		});
 		return source;
 	}
